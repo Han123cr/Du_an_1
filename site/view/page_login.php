@@ -13,7 +13,7 @@
                         <label for="exampleInputPassword1" class="form-label text-muted">Mật khẩu <span class="text-danger"> *</span></label>
                         <input type="password" class="form-control border border-secondary rounded-4" name="pass">
                     </div>
-                    <p class="small"><a class="color-main" href="forget-password.html">Quên mật khẩu ?</a></p>
+                    <p class="small"><a class="color-main" href="?mod=user&act=forget">Quên mật khẩu ?</a></p>
                     <div class="d-grid">
                         <button class="btn btn-main rounded-0 text-white" type="submit" name="login_submit">Đăng nhập</button>
                     </div>
@@ -35,7 +35,7 @@
                             Đăng ký trở thành thành viên của Pristine để nhận ngay những ưu đãi độc quyền chỉ dành cho thành viên.
                         </span>
                     </div>
-                    <div class="pt-3">
+                    <div class="pt-3" style="display:block;">
                         <a href="?mod=user&act=register" class="text-white text-center btn btn-main w-25 rounded-0">Đăng ký</a>
                     </div>
                 </div>

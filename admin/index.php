@@ -17,6 +17,9 @@
             case 'feedback':
                 include_once 'controller/feedback.php';
                 break;
+            case 'statistic':
+                include_once 'controller/statistic.php';
+                break;
             case 'order':
                 include_once 'view/page_orders.php';
             default:

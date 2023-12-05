@@ -36,8 +36,8 @@
             case 'register':
                 if(isset($register_submit)){
                     if($pass==$repass) {
-                    user_register($name,$email,$pass,$phone,$address,$_FILES['image']['name']);
-                    move_uploaded_file($_FILES['image']['tmp_name'],'../content/img/'.$_FILES['image']['name']);
+                        user_register($name,$email,$pass,$phone,$address,$_FILES['image']['name']);
+                        move_uploaded_file($_FILES['image']['tmp_name'],'../content/img'.$_FILES['image']['name']);
                     //echo "Đăng ký thành công";
                     
                     header('location: ?mod=user&act=login');
@@ -98,6 +98,10 @@
                     include_once 'view/page_change_pass.php';
                     include_once 'view/template_footer.php';
                 break;
-
+            case 'forget':
+                include_once 'view/template_header.php';
+                include_once 'view/forget-password.php';
+                include_once 'view/template_footer.php';
+            break;
         }
     }

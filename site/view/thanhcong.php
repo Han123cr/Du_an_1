@@ -12,7 +12,7 @@ try {
 
 function generateRandomOrderId($db) {
     // Tạo mã đơn hàng ngẫu nhiên
-    $maDonHang =  mt_rand(100000000, 999999999);
+    $maDonHang = mt_rand(100000000, 999999999);
 
     // Kiểm tra xem mã đơn hàng đã tồn tại trong cơ sở dữ liệu chưa
     $sqlCheckExistence = "SELECT COUNT(*) AS count FROM donhang WHERE MaDonHang = :maDonHang";
@@ -54,18 +54,21 @@ if (isset($_SESSION['user']['MaKhachHang'])) {
 }
 
 try {
+    // Bắt đầu giao dịch
+    $db->beginTransaction();
+
     // Thêm thông tin đơn hàng vào bảng donhang
     $sqlInsertDonHang = "INSERT INTO donhang (MaDonHang, NgayDatHang, MaKhachHang, TongTien, TrangThai, GhiChu)
                   VALUES (:maDonHang, :ngayDatHang, :maKhachHang, :tongTien, 'Đang chờ xử lý', NULL)";
-    
+
     $stmtInsertDonHang = $db->prepare($sqlInsertDonHang);
-    
+
     // Bind các tham số
     $stmtInsertDonHang->bindParam(':maDonHang', $maDonHang);
     $stmtInsertDonHang->bindParam(':ngayDatHang', $ngayDatHang);
     $stmtInsertDonHang->bindParam(':maKhachHang', $maKhachHang);
     $stmtInsertDonHang->bindParam(':tongTien', $sum);
-    
+
     // Thực thi truy vấn
     $stmtInsertDonHang->execute();
 
@@ -80,25 +83,34 @@ try {
 
         $sqlInsertChiTiet = "INSERT INTO chitietdonhang (MaDonHang, MaSanPham, SoLuong, GiaBan)
                              VALUES (:maDonHang, :maSanPham, :soLuong, :giaBan)";
-        
+
         $stmtInsertChiTiet = $db->prepare($sqlInsertChiTiet);
-        
+
         $stmtInsertChiTiet->bindParam(':maDonHang', $maDonHang); // Sử dụng mã đơn hàng đã tạo
         $stmtInsertChiTiet->bindParam(':maSanPham', $maSanPham);
         $stmtInsertChiTiet->bindParam(':soLuong', $soLuong);
         $stmtInsertChiTiet->bindParam(':giaBan', $giaBan);
         $stmtInsertChiTiet->execute();
+
+        // Cập nhật số lượng sản phẩm trong bảng sanpham
+        $sqlUpdateSoLuong = "UPDATE sanpham SET SoLuong = SoLuong - :soLuong WHERE MaSanPham = :maSanPham";
+        $stmtUpdateSoLuong = $db->prepare($sqlUpdateSoLuong);
+        $stmtUpdateSoLuong->bindParam(':soLuong', $soLuong);
+        $stmtUpdateSoLuong->bindParam(':maSanPham', $maSanPham);
+        $stmtUpdateSoLuong->execute();
     }
 
- 
+    // Commit giao dịch
+    $db->commit();
 
 } catch (PDOException $e) {
+    // Rollback giao dịch nếu có lỗi
+    $db->rollBack();
     echo 'Kết nối CSDL thất bại: ' . $e->getMessage();
     die();
 }
-
-// Tiếp tục với hiển thị thông tin đơn hàng hoặc chuyển hướng đến trang khác
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -135,10 +147,20 @@ try {
             background-color: #cea679;
             border-radius: 5px;
             transition: background-color 0.3s;
+            margin-right: 10px;
         }
 
         .continue-shopping-btn:hover {
             background-color: #2980b9;
+        }
+
+        .order-info {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .order-info p {
+            margin: 5px 0;
         }
     </style>
 </head>
@@ -148,6 +170,11 @@ try {
         <h1>Thanh toán thành công!</h1>
         <p>Cảm ơn bạn đã mua hàng</p>
         
+        <div class="order-info">
+            <p>Mã đơn hàng: <?php echo $maDonHangInserted; ?></p>
+            <p>Tổng tiền: <?php echo $sum; ?></p>
+        </div>
+
         <a href="../index.php" class="continue-shopping-btn">Tiếp tục mua sắm</a>
         <a href="../view/trangthai.php" class="continue-shopping-btn">Xem đơn hàng</a>
     </div>

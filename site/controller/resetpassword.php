@@ -67,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <p style="color: red; font-size: 14px;">Pristine chân thành cảm ơn.</p>';
                    
                 $mail->send();
-                echo 'Email sent successfully';
+                echo 'Đã gửi Email thành công, vui lòng vào mail kiểm tra';
             } catch (Exception $e) {
                 echo "Email sending failed: {$mail->ErrorInfo}";
             }
