@@ -101,5 +101,57 @@
         }
     }
 </script>
+<?php
+session_start(); // Bắt đầu session (nếu chưa tồn tại)
+$dburl = "mysql:host=localhost;dbname=myphamshop;charset=utf8";
+$username = 'root';
+$password = '';
+
+try {
+    $conn = new PDO($dburl, $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Kết nối thất bại: " . $e->getMessage());
+}
+// Sự kiện load trang
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    // Kiểm tra đăng nhập và trạng thái tài khoản
+    if (isset($_SESSION['user'])) {
+        $sessionUser = $_SESSION['user'];
+
+        if (is_array($sessionUser)) {
+            // Assuming that 'MaKhachHang' is the key you want to use
+            $userKey = isset($sessionUser['MaKhachHang']) ? $sessionUser['MaKhachHang'] : null;
+
+            if ($userKey) {
+                try {
+                    // Truy vấn SQL để lấy thông tin người dùng từ cơ sở dữ liệu
+                    $sql = "SELECT * FROM khachhang WHERE MaKhachHang = :user";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bindParam(':user', $userKey);
+                    $stmt->execute();
+
+                    if ($user['TrangThai'] == 0) {
+                        // Tài khoản đã bị khóa, hiển thị thông báo và đăng xuất
+                        echo '<script>alert("Tài khoản của bạn đã bị khóa.");</script>';
+                        echo '<script>window.location.href = "../site/view/check_block.php";</script>';
+                    } else {
+                        // Tài khoản đang hoạt động bình thường, có thể tiếp tục thực hiện các hành động cần thiết
+                        // ...
+                    }
+                } catch (PDOException $e) {
+                    die("Lỗi truy vấn: " . $e->getMessage());
+                }
+            } else {
+                // Handle the case where 'MaKhachHang' is not present in the session user array
+                echo '<script>alert("Lỗi xác định người dùng.");</script>';
+            }
+        } else {
+            // Handle the case where the session user is not an array
+            echo '<script>alert("Lỗi dữ liệu người dùng.");</script>';
+        }
+    }
+}
+?>
 
 </main>
